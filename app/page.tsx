@@ -1,8 +1,83 @@
+"use client";
+
 import Image from 'next/image';
 import Link from 'next/link';
-import { ArrowUpRight, CheckCircle2, Globe, Sparkles, PhoneCall, Menu, Lock } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { ArrowUpRight, CheckCircle2, Globe, Sparkles, PhoneCall, Menu, Lock, Languages } from 'lucide-react';
+
+const translations = {
+  en: {
+    hi: "Hi, I'm",
+    director: "I'm the Director at",
+    openToWork: "Open to work",
+    strategyCall: "No obligation strategy call",
+    subtitle: "Feel free to explore my portfolio and reach out — I'd love to connect!",
+    aboutTitle: "About Me",
+    aboutHeadline: "Danish AI Innovator & Agency Director",
+    aboutP1: "At 17, I co-founded and currently direct RiverAI ApS alongside my parents. Over the past 8 months, I have immersed myself in the rapidly evolving world of Artificial Intelligence, transforming a deep curiosity into a professional agency.",
+    philosophyTitle: "My Core Philosophy",
+    integrityTitle: "Integrity First:",
+    integrityDesc: "Complete transparency with no hidden fees or long-term lock-in contracts.",
+    successTitle: "Client Success:",
+    successDesc: "Dedicated to building solutions that create genuinely happy customers.",
+    impactTitle: "Measurable Impact:",
+    impactDesc: "Focused entirely on delivering real results and generating tangible ROI.",
+    paidClients: "Paid Clients",
+    ecommerce: "E-commerce / Retail",
+    serviceBiz: "Service Business",
+    websiteMvps: "Website MVPs",
+    getMvp: "Get your free MVP"
+  },
+  da: {
+    hi: "Hej, jeg er",
+    director: "Jeg er direktør hos",
+    openToWork: "Åben for arbejde",
+    strategyCall: "Uforpligtende strategisamtale",
+    subtitle: "Gå gerne på opdagelse i min portefølje og kontakt mig — jeg vil elske at snakke!",
+    aboutTitle: "Om Mig",
+    aboutHeadline: "Dansk AI Innovatør & Bureauejer",
+    aboutP1: "Som 17-årig har jeg medstiftet og driver nu RiverAI ApS sammen med mine forældre. Gennem de seneste 8 måneder har jeg fordybet mig i den hurtigt udviklende verden af kunstig intelligens og forvandlet en dyb nysgerrighed til et professionelt bureau.",
+    philosophyTitle: "Min Kernefilosofi",
+    integrityTitle: "Integritet Først:",
+    integrityDesc: "Fuld gennemsigtighed uden skjulte gebyrer eller lange bindingsperioder.",
+    successTitle: "Kundesucces:",
+    successDesc: "Dedikeret til at bygge løsninger, der skaber ægte glade kunder.",
+    impactTitle: "Målbart Impact:",
+    impactDesc: "Fokuseret 100% på at levere rigtige resultater og generere håndgribelig ROI.",
+    paidClients: "Betalende Kunder",
+    ecommerce: "E-handel / Detail",
+    serviceBiz: "Servicevirksomhed",
+    websiteMvps: "Hjemmeside MVPer",
+    getMvp: "Få din gratis MVP"
+  }
+};
 
 export default function Home() {
+  const [lang, setLang] = useState<'en' | 'da'>('en');
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+    const savedLang = localStorage.getItem('preferred-lang');
+    if (savedLang === 'da' || savedLang === 'en') {
+      setLang(savedLang);
+    } else {
+      const browserLang = navigator.language.toLowerCase();
+      if (browserLang.startsWith('da')) {
+        setLang('da');
+      }
+    }
+  }, []);
+
+  const toggleLang = () => {
+    const newLang = lang === 'en' ? 'da' : 'en';
+    setLang(newLang);
+    localStorage.setItem('preferred-lang', newLang);
+  };
+
+  const currentLang = mounted ? lang : 'en';
+  const t = translations[currentLang];
+
   return (
     <div className="min-h-screen bg-[#f4f4f5] text-zinc-900 font-sans selection:bg-orange-200 selection:text-orange-900 pb-24">
       {/* Browser-like Header */}
@@ -23,7 +98,16 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 sm:gap-4">
+            <button 
+              onClick={toggleLang}
+              className="flex items-center gap-2 text-sm font-bold text-zinc-600 bg-white/60 backdrop-blur-md border border-zinc-200/50 rounded-full py-2 px-3 sm:px-4 shadow-sm hover:bg-white transition-colors"
+              aria-label="Toggle Language"
+            >
+              <Languages className="w-4 h-4" />
+              <span className="hidden sm:inline">{currentLang === 'en' ? 'DA' : 'EN'}</span>
+              <span className="sm:hidden">{currentLang === 'en' ? 'DA' : 'EN'}</span>
+            </button>
             <div className="hidden sm:flex items-center gap-2 text-sm font-medium text-zinc-600 bg-white/60 backdrop-blur-md border border-zinc-200/50 rounded-full py-2 px-4 shadow-sm">
               <div className="w-5 h-5 rounded bg-zinc-900 text-white flex items-center justify-center text-xs font-bold">R</div>
               hey@riverai.dk
@@ -39,23 +123,23 @@ export default function Home() {
         {/* Hero Section */}
         <section className="py-12 md:py-20 text-center max-w-4xl mx-auto">
           <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-[80px] font-bold tracking-tight leading-[1.1] mb-6">
-            Hi, I'm <span className="inline-block relative w-[60px] h-[60px] sm:w-[80px] sm:h-[80px] align-middle mx-1 sm:mx-3 rounded-3xl overflow-hidden border-4 border-white shadow-md rotate-[-3deg] hover:rotate-0 transition-transform duration-300"><Image src="https://i.imgur.com/2etTUA8.png" alt="Thomas" fill className="object-cover" unoptimized /></span> Thomas!
+            {t.hi} <span className="inline-block relative w-[60px] h-[60px] sm:w-[80px] sm:h-[80px] align-middle mx-1 sm:mx-3 rounded-3xl overflow-hidden border-4 border-white shadow-md rotate-[-3deg] hover:rotate-0 transition-transform duration-300"><Image src="https://i.imgur.com/dU3OPad.png" alt="Thomas" fill className="object-cover" unoptimized /></span> Thomas!
             <br />
-            <span className="text-zinc-300 font-medium">I'm the Director at</span>
+            <span className="text-zinc-300 font-medium">{t.director}</span>
             <br />
             <span className="text-[#ff6b00]">RiverAI.</span>
             <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white shadow-sm border border-zinc-100 text-sm font-medium text-zinc-600 align-middle ml-2 sm:ml-6 mb-2 sm:mb-4">
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              Open to work
+              {t.openToWork}
             </span>
           </h1>
           
           <div className="flex flex-col sm:flex-row items-center justify-center gap-6 mt-16">
             <a href="mailto:hey@riverai.dk" className="px-8 py-4 rounded-full bg-zinc-900 text-white font-medium hover:bg-zinc-800 transition-colors flex items-center gap-2 shadow-lg shadow-zinc-900/20 hover:scale-105 active:scale-95 duration-200">
-              No obligation strategy call
+              {t.strategyCall}
             </a>
             <p className="text-zinc-600 max-w-xs text-center sm:text-left text-sm leading-relaxed font-medium">
-              Feel free to explore my portfolio and reach out — I'd love to connect!
+              {t.subtitle}
             </p>
           </div>
         </section>
@@ -68,30 +152,30 @@ export default function Home() {
             <div>
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-zinc-50 border border-zinc-100 text-xs font-semibold text-zinc-600 mb-8 uppercase tracking-wider">
                 <Sparkles className="w-3.5 h-3.5" />
-                About Me
+                {t.aboutTitle}
               </div>
-              <h2 className="text-3xl font-bold mb-6 tracking-tight">Danish AI Innovator & Agency Director</h2>
+              <h2 className="text-3xl font-bold mb-6 tracking-tight">{t.aboutHeadline}</h2>
               <div className="space-y-5 text-zinc-600 leading-relaxed font-medium">
                 <p>
-                  At 17, I co-founded and currently direct RiverAI ApS alongside my parents. Over the past 8 months, I have immersed myself in the rapidly evolving world of Artificial Intelligence, transforming a deep curiosity into a professional agency.
+                  {t.aboutP1}
                 </p>
                 <div className="bg-zinc-50 p-5 rounded-2xl border border-zinc-100 mt-4">
                   <h3 className="text-zinc-900 font-bold mb-3 flex items-center gap-2">
                     <div className="w-1.5 h-1.5 rounded-full bg-[#ff6b00]" />
-                    My Core Philosophy
+                    {t.philosophyTitle}
                   </h3>
                   <ul className="space-y-2 text-sm text-zinc-600">
                     <li className="flex items-start gap-2">
                       <CheckCircle2 className="w-4 h-4 text-emerald-500 mt-0.5 shrink-0" />
-                      <span><strong>Integrity First:</strong> Complete transparency with no hidden fees or long-term lock-in contracts.</span>
+                      <span><strong>{t.integrityTitle}</strong> {t.integrityDesc}</span>
                     </li>
                     <li className="flex items-start gap-2">
                       <CheckCircle2 className="w-4 h-4 text-emerald-500 mt-0.5 shrink-0" />
-                      <span><strong>Client Success:</strong> Dedicated to building solutions that create genuinely happy customers.</span>
+                      <span><strong>{t.successTitle}</strong> {t.successDesc}</span>
                     </li>
                     <li className="flex items-start gap-2">
                       <CheckCircle2 className="w-4 h-4 text-emerald-500 mt-0.5 shrink-0" />
-                      <span><strong>Measurable Impact:</strong> Focused entirely on delivering real results and generating tangible ROI.</span>
+                      <span><strong>{t.impactTitle}</strong> {t.impactDesc}</span>
                     </li>
                   </ul>
                 </div>
@@ -111,7 +195,7 @@ export default function Home() {
           <div className="md:col-span-5 bg-white rounded-[2.5rem] p-8 sm:p-10 shadow-sm border border-zinc-100 flex flex-col group hover:shadow-md transition-shadow duration-300">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-zinc-50 border border-zinc-100 text-xs font-semibold text-zinc-600 mb-8 self-start uppercase tracking-wider">
               <CheckCircle2 className="w-3.5 h-3.5" />
-              Paid Clients
+              {t.paidClients}
             </div>
             <div className="flex-1 flex flex-col gap-4 justify-center">
               <a href="https://www.antikguldsmeden.dk" target="_blank" rel="noreferrer" className="group/item block p-5 rounded-3xl bg-zinc-50 hover:bg-[#ff6b00]/5 transition-colors border border-zinc-100 hover:border-[#ff6b00]/20">
@@ -124,7 +208,7 @@ export default function Home() {
                     <ArrowUpRight className="w-4 h-4 text-zinc-400 group-hover/item:text-[#ff6b00]" />
                   </div>
                 </div>
-                <div className="text-sm font-medium text-zinc-500 mt-1">E-commerce / Retail</div>
+                <div className="text-sm font-medium text-zinc-500 mt-1">{t.ecommerce}</div>
               </a>
               <a href="https://doctorislanddetail.lovable.app" target="_blank" rel="noreferrer" className="group/item block p-5 rounded-3xl bg-zinc-50 hover:bg-[#ff6b00]/5 transition-colors border border-zinc-100 hover:border-[#ff6b00]/20">
                 <div className="relative w-full aspect-[16/10] rounded-2xl overflow-hidden mb-4 border border-zinc-200/50 bg-zinc-200/50">
@@ -136,7 +220,7 @@ export default function Home() {
                     <ArrowUpRight className="w-4 h-4 text-zinc-400 group-hover/item:text-[#ff6b00]" />
                   </div>
                 </div>
-                <div className="text-sm font-medium text-zinc-500 mt-1">Service Business</div>
+                <div className="text-sm font-medium text-zinc-500 mt-1">{t.serviceBiz}</div>
               </a>
             </div>
           </div>
@@ -146,10 +230,10 @@ export default function Home() {
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-10">
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-zinc-50 border border-zinc-100 text-xs font-semibold text-zinc-600 uppercase tracking-wider">
                 <Globe className="w-3.5 h-3.5" />
-                Website MVPs
+                {t.websiteMvps}
               </div>
               <a href="mailto:hey@riverai.dk" className="text-sm font-bold text-[#ff6b00] hover:text-[#e66000] transition-colors flex items-center gap-1 bg-[#ff6b00]/10 px-5 py-2.5 rounded-full hover:bg-[#ff6b00]/20">
-                Get your free MVP <ArrowUpRight className="w-4 h-4" />
+                {t.getMvp} <ArrowUpRight className="w-4 h-4" />
               </a>
             </div>
             
