@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { ArrowUpRight, CheckCircle2, Globe, Sparkles, PhoneCall, Menu, Lock, Languages } from 'lucide-react';
 import { motion, useScroll, useTransform, useSpring } from 'motion/react';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const translations = {
   en: {
@@ -56,6 +57,7 @@ const translations = {
 export default function Home() {
   const [lang, setLang] = useState<'en' | 'da'>('en');
   const [mounted, setMounted] = useState(false);
+  const isMobile = useIsMobile();
 
   // Parallax and Scroll Animations
   const { scrollY } = useScroll();
@@ -250,7 +252,7 @@ export default function Home() {
           {/* About Me Card */}
           <motion.div 
             variants={fadeUp}
-            style={{ y: smoothLeftY }}
+            style={{ y: isMobile ? 0 : smoothLeftY }}
             className="md:col-span-7 bg-white rounded-[2.5rem] p-8 sm:p-10 shadow-sm border border-zinc-100 flex flex-col justify-between group hover:shadow-md transition-shadow duration-300"
           >
             <div>
@@ -312,7 +314,7 @@ export default function Home() {
           {/* Paid Clients Card */}
           <motion.div 
             variants={fadeUp}
-            style={{ y: smoothRightY }}
+            style={{ y: isMobile ? 0 : smoothRightY }}
             className="md:col-span-5 bg-white rounded-[2.5rem] p-8 sm:p-10 shadow-sm border border-zinc-100 flex flex-col group hover:shadow-md transition-shadow duration-300"
           >
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-zinc-50 border border-zinc-100 text-xs font-semibold text-zinc-600 mb-8 self-start uppercase tracking-wider">
