@@ -229,7 +229,9 @@ export default function Home() {
             <motion.a 
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              href="mailto:hey@riverai.dk" 
+              href="https://cal.com/river-ai-aps/discovery-call" 
+              target="_blank"
+              rel="noreferrer"
               className="px-8 py-4 rounded-full bg-zinc-900 text-white font-medium hover:bg-zinc-800 transition-colors flex items-center gap-2 shadow-lg shadow-zinc-900/20"
             >
               {t.strategyCall}
@@ -376,7 +378,9 @@ export default function Home() {
               <motion.a 
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                href="mailto:hey@riverai.dk" 
+                href="https://tally.so/r/lbNWe6" 
+                target="_blank"
+                rel="noreferrer"
                 className="text-sm font-bold text-[#ff6b00] hover:text-[#e66000] transition-colors flex items-center gap-1 bg-[#ff6b00]/10 px-5 py-2.5 rounded-full hover:bg-[#ff6b00]/20"
               >
                 {t.getMvp} <ArrowUpRight className="w-4 h-4" />
