@@ -15,15 +15,16 @@ const translations = {
     strategyCall: "No obligation strategy call",
     subtitle: "Feel free to explore my portfolio and reach out — I'd love to connect!",
     aboutTitle: "About Me",
-    aboutHeadline: "Danish AI Innovator & Agency Director",
-    aboutP1: "At 17, I co-founded and currently direct RiverAI ApS alongside my parents. Over the past 8 months, I have immersed myself in the rapidly evolving world of Artificial Intelligence, transforming a deep curiosity into a professional agency.",
+    aboutHeadline: "Danish AI Agency Director",
+    aboutP1: "At 17, I co-founded RiverAI ApS — an AI automation agency built for Danish small businesses. I design and build websites, AI chatbots, and automation systems that help businesses save time, respond faster, and win more customers.",
+    aboutP2: "I don't sell software. I build systems that make businesses more money.",
     philosophyTitle: "My Core Philosophy",
-    integrityTitle: "Integrity First:",
-    integrityDesc: "Complete transparency with no hidden fees or long-term lock-in contracts.",
-    successTitle: "Client Success:",
-    successDesc: "Dedicated to building solutions that create genuinely happy customers.",
-    impactTitle: "Measurable Impact:",
-    impactDesc: "Focused entirely on delivering real results and generating tangible ROI.",
+    integrityTitle: "No Lock-In:",
+    integrityDesc: "Transparent pricing, no hidden fees, no long-term contracts.",
+    successTitle: "Measurable Results:",
+    successDesc: "Every solution is tied to a real business outcome — more leads, less manual work, faster response times.",
+    impactTitle: "Built to Last:",
+    impactDesc: "Clean, reliable systems that keep working after handoff.",
     paidClients: "Paid Clients",
     ecommerce: "E-commerce / Retail",
     serviceBiz: "Service Business",
@@ -37,15 +38,16 @@ const translations = {
     strategyCall: "Uforpligtende strategisamtale",
     subtitle: "Gå gerne på opdagelse i min portefølje og kontakt mig — jeg vil elske at snakke!",
     aboutTitle: "Om Mig",
-    aboutHeadline: "Dansk AI Innovatør & Bureauejer",
-    aboutP1: "Som 17-årig har jeg medstiftet og driver nu RiverAI ApS sammen med mine forældre. Gennem de seneste 8 måneder har jeg fordybet mig i den hurtigt udviklende verden af kunstig intelligens og forvandlet en dyb nysgerrighed til et professionelt bureau.",
+    aboutHeadline: "Dansk AI Bureauejer",
+    aboutP1: "Som 17-årig medstiftede jeg RiverAI ApS — et AI-automatiseringsbureau bygget til danske små og mellemstore virksomheder. Jeg designer og bygger hjemmesider, AI-chatbots og automatiseringssystemer, der hjælper virksomheder med at spare tid, svare hurtigere og vinde flere kunder.",
+    aboutP2: "Jeg sælger ikke software. Jeg bygger systemer, der tjener penge til virksomheder.",
     philosophyTitle: "Min Kernefilosofi",
-    integrityTitle: "Integritet Først:",
-    integrityDesc: "Fuld gennemsigtighed uden skjulte gebyrer eller lange bindingsperioder.",
-    successTitle: "Kundesucces:",
-    successDesc: "Dedikeret til at bygge løsninger, der skaber ægte glade kunder.",
-    impactTitle: "Målbart Impact:",
-    impactDesc: "Fokuseret 100% på at levere rigtige resultater og generere håndgribelig ROI.",
+    integrityTitle: "Ingen Binding:",
+    integrityDesc: "Gennemsigtige priser, ingen skjulte gebyrer, ingen lange kontrakter.",
+    successTitle: "Mærkbare Resultater:",
+    successDesc: "Hver løsning er bundet til et reelt forretningsmål — flere leads, mindre manuelt arbejde, hurtigere svartider.",
+    impactTitle: "Bygget Til At Holde:",
+    impactDesc: "Solide, pålidelige systemer, der fortsætter med at fungere efter overlevering.",
     paidClients: "Betalende Kunder",
     ecommerce: "E-handel / Detail",
     serviceBiz: "Servicevirksomhed",
@@ -159,17 +161,26 @@ export default function Home() {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={toggleLang}
-              className="flex items-center gap-2 text-sm font-bold text-zinc-600 bg-white/60 backdrop-blur-md border border-zinc-200/50 rounded-full py-2 px-3 sm:px-4 shadow-sm hover:bg-white transition-colors"
+              className="flex items-center gap-2 text-sm font-bold text-zinc-700 bg-white/60 backdrop-blur-md border border-zinc-200/50 rounded-full py-2 px-3 sm:px-4 shadow-sm hover:bg-white transition-colors"
               aria-label="Toggle Language"
             >
               <motion.div
-                animate={{ rotate: lang === 'en' ? 0 : 180 }}
-                transition={{ type: "spring", stiffness: 200, damping: 20 }}
+                initial={false}
+                animate={{ scale: [0.8, 1.2, 1] }}
+                transition={{ duration: 0.3 }}
+                key={currentLang}
+                className="relative w-5 h-5 rounded-full overflow-hidden border border-zinc-200/50 shrink-0"
               >
-                <Languages className="w-4 h-4" />
+                <Image 
+                  src={currentLang === 'en' ? 'https://flagcdn.com/gb.svg' : 'https://flagcdn.com/dk.svg'} 
+                  alt={currentLang === 'en' ? 'English' : 'Danish'} 
+                  fill 
+                  className="object-cover" 
+                  unoptimized 
+                />
               </motion.div>
-              <span className="hidden sm:inline">{currentLang === 'en' ? 'DA' : 'EN'}</span>
-              <span className="sm:hidden">{currentLang === 'en' ? 'DA' : 'EN'}</span>
+              <span className="hidden sm:inline">{currentLang === 'en' ? 'EN' : 'DA'}</span>
+              <span className="sm:hidden">{currentLang === 'en' ? 'EN' : 'DA'}</span>
             </motion.button>
             <div className="hidden sm:flex items-center gap-2 text-sm font-medium text-zinc-600 bg-white/60 backdrop-blur-md border border-zinc-200/50 rounded-full py-2 px-4 shadow-sm">
               <div className="w-5 h-5 rounded bg-zinc-900 text-white flex items-center justify-center text-xs font-bold">R</div>
@@ -213,9 +224,12 @@ export default function Home() {
             <span className="text-[#ff6b00]">RiverAI.</span>
             <motion.span 
               whileHover={{ scale: 1.05 }}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white shadow-sm border border-zinc-100 text-sm font-medium text-zinc-600 align-middle ml-2 sm:ml-6 mb-2 sm:mb-4 cursor-default"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white shadow-sm border border-zinc-100 text-sm font-semibold text-zinc-700 align-middle ml-2 sm:ml-6 mb-2 sm:mb-4 cursor-default transform-gpu antialiased"
             >
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+              </span>
               {t.openToWork}
             </motion.span>
           </motion.h1>
@@ -266,6 +280,9 @@ export default function Home() {
               <div className="space-y-5 text-zinc-600 leading-relaxed font-medium">
                 <p>
                   {t.aboutP1}
+                </p>
+                <p className="font-semibold text-zinc-800">
+                  {t.aboutP2}
                 </p>
                 <div className="bg-zinc-50 p-5 rounded-2xl border border-zinc-100 mt-4">
                   <h3 className="text-zinc-900 font-bold mb-3 flex items-center gap-2">
@@ -387,12 +404,11 @@ export default function Home() {
               </motion.a>
             </div>
             
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
               {[
                 { name: 'Mindag', url: 'https://mindag.lovable.app/#' },
                 { name: 'Sarah Barløse', url: 'https://sarahbarlose-dk.lovable.app' },
                 { name: 'Danfun', url: 'https://danfun-dk.lovable.app' },
-                { name: 'Access2Learn', url: 'https://access2learnmvp.lovable.app' },
                 { name: 'Svendborg Pejse', url: 'https://svendborg-pejse.lovable.app' },
                 { name: 'Moselund Økologi', url: 'https://moselundokologi.vercel.app' },
                 { name: 'Havneby Kro', url: 'https://havnebykrodk.lovable.app' },
