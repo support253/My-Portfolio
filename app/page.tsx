@@ -1,79 +1,164 @@
+// NOTE: Iframe fallback mechanism relies on a 3-second timeout due to browser CORS policies. 
+// If a client site (e.g. Doctor Island Detail on Lovable, which typically sends X-Frame-Options: DENY) 
+// blocks framing, the onload event gracefully fails, and the timeout swaps the view to a high-res screenshot automatically.
+// The other sites (Dahl & Svane, Antikguldsmeden) will likely render perfectly within the iframe.
+
 "use client";
 
 import Image from 'next/image';
-import Link from 'next/link';
 import { useState, useEffect } from 'react';
-import { ArrowUpRight, CheckCircle2, Globe, Sparkles, PhoneCall, Menu, Lock, Languages } from 'lucide-react';
-import { motion, useScroll, useTransform, useSpring } from 'motion/react';
+import { ArrowUpRight, Languages } from 'lucide-react';
+import { motion, useScroll, useTransform } from 'motion/react';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 const translations = {
   en: {
-    hi: "Hi, I'm",
-    director: "I'm the Director at",
-    openToWork: "Open to work",
-    strategyCall: "No obligation strategy call",
-    subtitle: "Feel free to explore my portfolio and reach out — I'd love to connect!",
-    aboutTitle: "About Me",
-    aboutHeadline: "Danish AI Agency Director",
-    aboutP1: "At 17, I co-founded RiverAI ApS — an AI automation agency built for Danish small businesses. I design and build websites, AI chatbots, and automation systems that help businesses save time, respond faster, and win more customers.",
-    aboutP2: "I don't sell software. I build systems that make businesses more money.",
-    philosophyTitle: "My Core Philosophy",
-    integrityTitle: "No Lock-In:",
-    integrityDesc: "Transparent pricing, no hidden fees, no long-term contracts.",
-    successTitle: "Measurable Results:",
-    successDesc: "Every solution is tied to a real business outcome — more leads, less manual work, faster response times.",
-    impactTitle: "Built to Last:",
-    impactDesc: "Clean, reliable systems that keep working after handoff.",
-    paidClients: "Paid Clients",
-    ecommerce: "E-commerce / Retail",
-    serviceBiz: "Service Business",
-    websiteMvps: "Website MVPs",
-    getMvp: "Get your free MVP"
+    h1: "I build websites for Danish small businesses.",
+    subhead: "Below are 3 sites I've shipped.",
+    bookCall: "Book a discovery call",
+    credibility: "3 sites shipped · Based in Denmark · CVR 45906523",
+    aboutTitle: "About",
+    aboutBody: "Thomas Vincent-Piper, 17, based in Fyn. I build custom websites for Danish small businesses — no templates, no page builders, real code. One-on-one, fast turnaround, you own everything.",
+    howItWorksTitle: "How working with me goes",
+    timeline: "Timeline: 2–3 weeks from kickoff to live",
+    price: "Price: 8.000–15.000 DKK ekskl. moms",
+    includes: "Includes: design, build, deployment, 1 revision round",
+    youOwn: "You own: domain, code, hosting account",
+    openLiveSite: "Open live site",
+    previewUnavailable: "Live preview unavailable",
+    previewDesc: "The security settings for this website prevent it from being embedded here. Click below to view the live site."
   },
   da: {
-    hi: "Hej, jeg er",
-    director: "Jeg er direktør hos",
-    openToWork: "Åben for arbejde",
-    strategyCall: "Uforpligtende strategisamtale",
-    subtitle: "Gå gerne på opdagelse i min portefølje og kontakt mig — jeg vil elske at snakke!",
-    aboutTitle: "Om Mig",
-    aboutHeadline: "Dansk AI Bureauejer",
-    aboutP1: "Som 17-årig medstiftede jeg RiverAI ApS — et AI-automatiseringsbureau bygget til danske små og mellemstore virksomheder. Jeg designer og bygger hjemmesider, AI-chatbots og automatiseringssystemer, der hjælper virksomheder med at spare tid, svare hurtigere og vinde flere kunder.",
-    aboutP2: "Jeg sælger ikke software. Jeg bygger systemer, der tjener penge til virksomheder.",
-    philosophyTitle: "Min Kernefilosofi",
-    integrityTitle: "Ingen Binding:",
-    integrityDesc: "Gennemsigtige priser, ingen skjulte gebyrer, ingen lange kontrakter.",
-    successTitle: "Mærkbare Resultater:",
-    successDesc: "Hver løsning er bundet til et reelt forretningsmål — flere leads, mindre manuelt arbejde, hurtigere svartider.",
-    impactTitle: "Bygget Til At Holde:",
-    impactDesc: "Solide, pålidelige systemer, der fortsætter med at fungere efter overlevering.",
-    paidClients: "Betalende Kunder",
-    ecommerce: "E-handel / Detail",
-    serviceBiz: "Servicevirksomhed",
-    websiteMvps: "Hjemmeside MVPer",
-    getMvp: "Få din gratis MVP"
+    h1: "Jeg bygger hjemmesider til danske virksomheder.",
+    subhead: "Herunder er 3 sider, jeg har lanceret.",
+    bookCall: "Book en samtale",
+    credibility: "3 lancerede sider · Baseret i Danmark · CVR 45906523",
+    aboutTitle: "Om mig",
+    aboutBody: "Thomas Vincent-Piper, 17 år, baseret på Fyn. Jeg bygger skræddersyede hjemmesider til danske virksomheder — ingen skabeloner, ingen page builders, kun rigtig kode. En-til-en kontakt, hurtig levering, og du ejer alt.",
+    howItWorksTitle: "Sådan foregår samarbejdet",
+    timeline: "Tidslinje: 2–3 uger fra start til lancering",
+    price: "Pris: 8.000–15.000 DKK ekskl. moms",
+    includes: "Inkluderer: design, udvikling, lancering, 1 revisionsrunde",
+    youOwn: "Du ejer: domæne, kode, hosting-konto",
+    openLiveSite: "Åbn live side",
+    previewUnavailable: "Live forhåndsvisning utilgængelig",
+    previewDesc: "Sikkerhedsindstillinger for denne hjemmeside forhindrer den i at blive indlejret her. Klik nedenfor for at besøge den live side."
   }
 };
+
+const projects = [
+  {
+    name: "Dahl & Svane",
+    description: "Civil engineering / consulting",
+    tag: "Consulting",
+    url: "https://dahlogsvane.dk",
+    forceScreenshot: true
+  },
+  {
+    name: "Antikguldsmeden",
+    description: "Antique jewellery shop, Denmark",
+    tag: "E-commerce",
+    url: "https://antikguldsmeden.dk"
+  },
+  {
+    name: "Doctor Island Detail",
+    description: "Auto detailing",
+    tag: "Service Business",
+    url: "https://doctorislanddetail.lovable.app/",
+    forceScreenshot: true
+  }
+];
+
+const ProjectCard = ({ project, t, isMobile }: { project: any, t: any, isMobile: boolean }) => {
+  const [iframeLoaded, setIframeLoaded] = useState(false);
+  const [iframeFailed, setIframeFailed] = useState(false);
+
+  useEffect(() => {
+    if (isMobile || project.forceScreenshot) return;
+    const timer = setTimeout(() => {
+      if (!iframeLoaded) setIframeFailed(true);
+    }, 3000);
+    return () => clearTimeout(timer);
+  }, [iframeLoaded, isMobile, project.forceScreenshot]);
+
+  const showScreenshot = isMobile || iframeFailed || project.forceScreenshot;
+
+  return (
+    <motion.div whileHover={{ y: -4 }} className="mb-20">
+      <div className="mb-5 flex flex-col sm:flex-row sm:items-end justify-between gap-3">
+        <div>
+          <h3 className="text-3xl font-bold text-zinc-900">{project.name}</h3>
+          <p className="text-zinc-500 mt-1 font-medium">{project.description}</p>
+        </div>
+        <span className="inline-block px-4 py-1.5 bg-zinc-200/50 text-zinc-600 rounded-full text-xs font-bold uppercase tracking-wide whitespace-nowrap self-start sm:self-auto">
+          {project.tag}
+        </span>
+      </div>
+      
+      <div className="group rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-zinc-200/80 bg-white">
+        <a href={project.url} target="_blank" rel="noopener noreferrer" className="block cursor-pointer">
+          {/* Faux Browser Chrome */}
+          <div className="bg-zinc-100 border-b border-zinc-200 px-4 py-3 flex items-center">
+            <div className="flex gap-1.5 w-16">
+              <div className="w-3 h-3 rounded-full bg-[#ff5f56]" />
+              <div className="w-3 h-3 rounded-full bg-[#ffbd2e]" />
+              <div className="w-3 h-3 rounded-full bg-[#27c93f]" />
+            </div>
+            <div className="flex-1 text-center">
+              <div className="mx-auto max-w-fit inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white shadow-sm border border-zinc-200/80 text-xs font-semibold text-zinc-500 group-hover:bg-zinc-50 group-hover:text-zinc-800 transition-colors">
+                {project.url.replace('https://', '').replace('/', '')}
+              </div>
+            </div>
+            <div className="w-16" />
+          </div>
+        </a>
+        
+        {/* Interactive Body */}
+        <div className="relative w-full h-[350px] sm:h-[600px] overflow-hidden bg-zinc-50 flex items-center justify-center border-t border-zinc-200/50">
+          {showScreenshot ? (
+            <>
+              <Image 
+                src={`https://api.microlink.io/?url=${encodeURIComponent(project.url)}&screenshot=true&embed=screenshot.url`} 
+                alt={project.name} 
+                fill 
+                className="object-cover object-top" 
+                unoptimized 
+              />
+              <div className="absolute inset-0 bg-black/10 flex flex-col items-center justify-center p-6 text-center">
+                <a href={project.url} target="_blank" rel="noopener noreferrer" className="px-6 py-3 bg-white/95 backdrop-blur-sm text-zinc-900 rounded-full font-bold shadow-xl border border-zinc-200/50 hover:scale-105 active:scale-95 transition-transform flex items-center gap-2">
+                  {t.openLiveSite} <ArrowUpRight className="w-4 h-4" />
+                </a>
+              </div>
+            </>
+          ) : (
+            <div className="w-[200%] h-[200%] scale-50 origin-top-left absolute top-0 left-0 bg-white">
+              <iframe 
+                src={project.url} 
+                className="w-full h-full pointer-events-auto border-none"
+                loading="lazy"
+                onLoad={() => setIframeLoaded(true)}
+              />
+              {!iframeLoaded && (
+                <div className="absolute inset-0 flex items-center justify-center bg-zinc-50 pointer-events-none">
+                  <div className="w-8 h-8 rounded-full border-2 border-zinc-300 border-t-[#ff6b00] animate-spin" />
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+    </motion.div>
+  );
+}
 
 export default function Home() {
   const [lang, setLang] = useState<'en' | 'da'>('en');
   const [mounted, setMounted] = useState(false);
   const isMobile = useIsMobile();
 
-  // Parallax and Scroll Animations
   const { scrollY } = useScroll();
-  const heroY = useTransform(scrollY, [0, 800], [0, 200]);
+  const heroY = useTransform(scrollY, [0, 800], [0, 150]);
   const heroOpacity = useTransform(scrollY, [0, 400], [1, 0]);
-  
-  // Subtle parallax for the bento grid columns
-  const leftColumnY = useTransform(scrollY, [0, 1000], [0, -30]);
-  const rightColumnY = useTransform(scrollY, [0, 1000], [0, -70]);
-  
-  const smoothLeftY = useSpring(leftColumnY, { stiffness: 50, damping: 20 });
-  const smoothRightY = useSpring(rightColumnY, { stiffness: 50, damping: 20 });
-
-  // Background parallax
   const bgBlob1Y = useTransform(scrollY, [0, 1000], [0, 300]);
   const bgBlob2Y = useTransform(scrollY, [0, 1000], [0, -200]);
 
@@ -99,346 +184,181 @@ export default function Home() {
   const currentLang = mounted ? lang : 'en';
   const t = translations[currentLang];
 
-  // Animation Variants
-  const staggerContainer = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.15,
-        delayChildren: 0.1,
-      }
-    }
-  };
-
-  const fadeUp = {
-    hidden: { opacity: 0, y: 30 },
-    visible: { 
-      opacity: 1, 
-      y: 0,
-      transition: { type: "spring" as const, stiffness: 80, damping: 20 }
-    }
-  };
-
   return (
-    <div className="min-h-screen bg-[#f4f4f5] text-zinc-900 font-sans selection:bg-orange-200 selection:text-orange-900 pb-24 overflow-hidden relative">
+    <div className="min-h-screen bg-[#f4f4f5] text-zinc-900 font-sans selection:bg-orange-200 selection:text-orange-900 overflow-x-hidden relative flex flex-col">
       
       {/* Background Parallax Elements */}
       <motion.div 
-        className="fixed top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-orange-500/5 blur-[120px] pointer-events-none"
+        className="fixed top-[0%] left-[-10%] w-[50%] h-[40%] rounded-full bg-orange-500/5 blur-[120px] pointer-events-none"
         style={{ y: bgBlob1Y }}
       />
       <motion.div 
-        className="fixed bottom-[-10%] right-[-5%] w-[30%] h-[30%] rounded-full bg-emerald-500/5 blur-[100px] pointer-events-none"
+        className="fixed bottom-[-10%] right-[-5%] w-[40%] h-[40%] rounded-full bg-emerald-500/5 blur-[120px] pointer-events-none"
         style={{ y: bgBlob2Y }}
       />
 
-      {/* Browser-like Header */}
-      <motion.header 
-        initial={{ y: -20, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.5, ease: "easeOut" }}
-        className="max-w-6xl mx-auto px-4 sm:px-6 pt-6 pb-12 relative z-10"
-      >
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="flex gap-1.5">
-              <motion.div whileHover={{ scale: 1.2 }} className="w-3 h-3 rounded-full bg-[#ff5f56]" />
-              <motion.div whileHover={{ scale: 1.2 }} className="w-3 h-3 rounded-full bg-[#ffbd2e]" />
-              <motion.div whileHover={{ scale: 1.2 }} className="w-3 h-3 rounded-full bg-[#27c93f]" />
-            </div>
-          </div>
-          
-          <div className="hidden md:flex items-center justify-center flex-1 max-w-md mx-4">
-            <div className="w-full bg-white/60 backdrop-blur-md border border-zinc-200/50 rounded-full py-2 px-4 flex items-center justify-center gap-2 text-sm text-zinc-500 shadow-sm">
-              <Lock className="w-3 h-3" />
-              <span>thomas.riverai.dk</span>
-            </div>
-          </div>
+      {/* Header */}
+      <header className="max-w-4xl w-full mx-auto px-4 sm:px-6 pt-6 pb-2 relative z-20 flex justify-end">
+        <motion.button 
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={toggleLang}
+          className="flex items-center gap-2 text-sm font-bold text-zinc-700 bg-white/60 backdrop-blur-md border border-zinc-200/50 rounded-full py-2 px-3 sm:px-4 shadow-sm hover:bg-white transition-colors"
+          aria-label="Toggle Language"
+        >
+          <motion.div
+            initial={false}
+            animate={{ scale: [0.8, 1.2, 1] }}
+            transition={{ duration: 0.3 }}
+            key={currentLang}
+            className="relative w-5 h-5 rounded-full overflow-hidden border border-zinc-200/50 shrink-0"
+          >
+            <Image 
+              src={currentLang === 'en' ? 'https://flagcdn.com/gb.svg' : 'https://flagcdn.com/dk.svg'} 
+              alt={currentLang === 'en' ? 'English' : 'Danish'} 
+              fill 
+              className="object-cover" 
+              unoptimized 
+            />
+          </motion.div>
+          <span className="hidden sm:inline">{currentLang === 'en' ? 'EN' : 'DA'}</span>
+          <span className="sm:hidden">{currentLang === 'en' ? 'EN' : 'DA'}</span>
+        </motion.button>
+      </header>
 
-          <div className="flex items-center gap-2 sm:gap-4">
-            <motion.button 
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={toggleLang}
-              className="flex items-center gap-2 text-sm font-bold text-zinc-700 bg-white/60 backdrop-blur-md border border-zinc-200/50 rounded-full py-2 px-3 sm:px-4 shadow-sm hover:bg-white transition-colors"
-              aria-label="Toggle Language"
-            >
-              <motion.div
-                initial={false}
-                animate={{ scale: [0.8, 1.2, 1] }}
-                transition={{ duration: 0.3 }}
-                key={currentLang}
-                className="relative w-5 h-5 rounded-full overflow-hidden border border-zinc-200/50 shrink-0"
-              >
-                <Image 
-                  src={currentLang === 'en' ? 'https://flagcdn.com/gb.svg' : 'https://flagcdn.com/dk.svg'} 
-                  alt={currentLang === 'en' ? 'English' : 'Danish'} 
-                  fill 
-                  className="object-cover" 
-                  unoptimized 
-                />
-              </motion.div>
-              <span className="hidden sm:inline">{currentLang === 'en' ? 'EN' : 'DA'}</span>
-              <span className="sm:hidden">{currentLang === 'en' ? 'EN' : 'DA'}</span>
-            </motion.button>
-            <div className="hidden sm:flex items-center gap-2 text-sm font-medium text-zinc-600 bg-white/60 backdrop-blur-md border border-zinc-200/50 rounded-full py-2 px-4 shadow-sm">
-              <div className="w-5 h-5 rounded bg-zinc-900 text-white flex items-center justify-center text-xs font-bold">R</div>
-              hey@riverai.dk
-            </div>
-            <motion.button 
-              whileHover={{ scale: 1.05, rotate: 90 }}
-              whileTap={{ scale: 0.95 }}
-              className="w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center hover:bg-zinc-50 transition-colors border border-zinc-200/50"
-            >
-              <Menu className="w-4 h-4 text-zinc-600" />
-            </motion.button>
-          </div>
-        </div>
-      </motion.header>
-
-      <main className="max-w-5xl mx-auto px-4 sm:px-6 relative z-10">
+      <div className="flex-grow">
         {/* Hero Section */}
-        <motion.section 
+        <motion.main 
           style={{ y: heroY, opacity: heroOpacity }}
-          className="py-12 md:py-20 text-center max-w-4xl mx-auto"
+          className="px-4 sm:px-6 pt-20 pb-16 relative z-10 max-w-3xl mx-auto"
         >
           <motion.h1 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, ease: "easeOut" }}
-            className="text-5xl sm:text-6xl md:text-7xl lg:text-[80px] font-bold tracking-tight leading-[1.1] mb-6"
+            transition={{ duration: 0.5, ease: "easeOut" }}
+            className="text-4xl sm:text-5xl md:text-[56px] font-bold tracking-tight leading-[1.1] mb-5 text-zinc-900"
           >
-            {t.hi} <motion.span 
-              initial={{ rotate: -10, scale: 0.8, opacity: 0 }}
-              animate={{ rotate: -3, scale: 1, opacity: 1 }}
-              whileHover={{ rotate: 0, scale: 1.1 }}
-              transition={{ type: "spring", stiffness: 200, damping: 15, delay: 0.2 }}
-              className="inline-block relative w-[60px] h-[60px] sm:w-[80px] sm:h-[80px] align-middle mx-1 sm:mx-3 rounded-3xl overflow-hidden border-4 border-white shadow-md cursor-pointer"
-            >
-              <Image src="https://i.imgur.com/dU3OPad.png" alt="Thomas" fill className="object-cover" unoptimized />
-            </motion.span> Thomas!
-            <br />
-            <span className="text-zinc-300 font-medium">{t.director}</span>
-            <br />
-            <span className="text-[#ff6b00]">RiverAI.</span>
-            <motion.span 
-              whileHover={{ scale: 1.05 }}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white shadow-sm border border-zinc-100 text-sm font-semibold text-zinc-700 align-middle ml-2 sm:ml-6 mb-2 sm:mb-4 cursor-default transform-gpu antialiased"
-            >
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-              </span>
-              {t.openToWork}
-            </motion.span>
+            {t.h1}
           </motion.h1>
           
-          <motion.div 
+          <motion.p 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.3, ease: "easeOut" }}
-            className="flex flex-col sm:flex-row items-center justify-center gap-6 mt-16"
+            transition={{ duration: 0.5, delay: 0.1, ease: "easeOut" }}
+            className="text-xl sm:text-2xl text-zinc-600 mb-8 font-medium"
           >
-            <motion.a 
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
+            {t.subhead}
+          </motion.p>
+          
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.2, ease: "easeOut" }}
+          >
+            <a 
               href="https://cal.com/river-ai-aps/discovery-call" 
               target="_blank"
               rel="noreferrer"
-              className="px-8 py-4 rounded-full bg-zinc-900 text-white font-medium hover:bg-zinc-800 transition-colors flex items-center gap-2 shadow-lg shadow-zinc-900/20"
+              className="inline-flex items-center gap-2 px-8 py-4 rounded-full bg-zinc-900 text-white font-medium hover:bg-zinc-800 hover:scale-105 active:scale-95 transition-all shadow-lg shadow-zinc-900/10"
             >
-              {t.strategyCall}
-            </motion.a>
-            <p className="text-zinc-600 max-w-xs text-center sm:text-left text-sm leading-relaxed font-medium">
-              {t.subtitle}
+              {t.bookCall} <ArrowUpRight className="w-5 h-5 opacity-70" />
+            </a>
+            <p className="mt-6 text-sm text-zinc-500 font-semibold tracking-wide uppercase">
+              {t.credibility}
             </p>
           </motion.div>
-        </motion.section>
+        </motion.main>
 
-        {/* Bento Grid */}
-        <motion.div 
-          variants={staggerContainer}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: "-100px" }}
-          className="grid grid-cols-1 md:grid-cols-12 gap-6 mt-12"
-        >
-          
-          {/* About Me Card */}
-          <motion.div 
-            variants={fadeUp}
-            style={{ y: isMobile ? 0 : smoothLeftY }}
-            className="md:col-span-7 bg-white rounded-[2.5rem] p-8 sm:p-10 shadow-sm border border-zinc-100 flex flex-col justify-between group hover:shadow-md transition-shadow duration-300"
+        {/* Selected Work List */}
+        <section className="max-w-4xl mx-auto px-4 sm:px-6 mt-10 relative z-20">
+          <motion.div
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
           >
-            <div>
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-zinc-50 border border-zinc-100 text-xs font-semibold text-zinc-600 mb-8 uppercase tracking-wider">
-                <Sparkles className="w-3.5 h-3.5" />
-                {t.aboutTitle}
-              </div>
-              <h2 className="text-3xl font-bold mb-6 tracking-tight">{t.aboutHeadline}</h2>
-              <div className="space-y-5 text-zinc-600 leading-relaxed font-medium">
-                <p>
-                  {t.aboutP1}
-                </p>
-                <p className="font-semibold text-zinc-800">
-                  {t.aboutP2}
-                </p>
-                <div className="bg-zinc-50 p-5 rounded-2xl border border-zinc-100 mt-4">
-                  <h3 className="text-zinc-900 font-bold mb-3 flex items-center gap-2">
-                    <div className="w-1.5 h-1.5 rounded-full bg-[#ff6b00]" />
-                    {t.philosophyTitle}
-                  </h3>
-                  <ul className="space-y-2 text-sm text-zinc-600">
-                    <li className="flex items-start gap-2">
-                      <CheckCircle2 className="w-4 h-4 text-emerald-500 mt-0.5 shrink-0" />
-                      <span><strong>{t.integrityTitle}</strong> {t.integrityDesc}</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <CheckCircle2 className="w-4 h-4 text-emerald-500 mt-0.5 shrink-0" />
-                      <span><strong>{t.successTitle}</strong> {t.successDesc}</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <CheckCircle2 className="w-4 h-4 text-emerald-500 mt-0.5 shrink-0" />
-                      <span><strong>{t.impactTitle}</strong> {t.impactDesc}</span>
-                    </li>
-                  </ul>
-                </div>
-              </div>
-            </div>
-            <div className="flex flex-wrap items-center gap-4 pt-8 mt-8 border-t border-zinc-100">
-              <motion.a 
-                whileHover={{ scale: 1.05, backgroundColor: "#f4f4f5" }}
-                whileTap={{ scale: 0.95 }}
-                href="https://www.proff.dk/firma/riverai-aps/hesselager/internetdesign-og-programmering/0RBXP7I0C2C" 
-                target="_blank" 
-                rel="noreferrer" 
-                className="text-sm font-semibold text-zinc-500 hover:text-zinc-900 transition-colors flex items-center gap-1.5 bg-zinc-50 px-4 py-2 rounded-full"
-              >
-                CVR: 45906523 <ArrowUpRight className="w-3.5 h-3.5" />
-              </motion.a>
-              <motion.a 
-                whileHover={{ scale: 1.05, backgroundColor: "#f4f4f5" }}
-                whileTap={{ scale: 0.95 }}
-                href="https://riverai.dk" 
-                target="_blank" 
-                rel="noreferrer" 
-                className="text-sm font-semibold text-zinc-500 hover:text-zinc-900 transition-colors flex items-center gap-1.5 bg-zinc-50 px-4 py-2 rounded-full"
-              >
-                riverai.dk <ArrowUpRight className="w-3.5 h-3.5" />
-              </motion.a>
-            </div>
+            {projects.map((project, idx) => (
+              <ProjectCard key={idx} project={project} t={t} isMobile={isMobile} />
+            ))}
           </motion.div>
+        </section>
 
-          {/* Paid Clients Card */}
-          <motion.div 
-            variants={fadeUp}
-            style={{ y: isMobile ? 0 : smoothRightY }}
-            className="md:col-span-5 bg-white rounded-[2.5rem] p-8 sm:p-10 shadow-sm border border-zinc-100 flex flex-col group hover:shadow-md transition-shadow duration-300"
-          >
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-zinc-50 border border-zinc-100 text-xs font-semibold text-zinc-600 mb-8 self-start uppercase tracking-wider">
-              <CheckCircle2 className="w-3.5 h-3.5" />
-              {t.paidClients}
-            </div>
-            <div className="flex-1 flex flex-col gap-4 justify-center">
-              <motion.a 
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                href="https://www.antikguldsmeden.dk" 
-                target="_blank" 
-                rel="noreferrer" 
-                className="group/item block p-5 rounded-3xl bg-zinc-50 hover:bg-[#ff6b00]/5 transition-colors border border-zinc-100 hover:border-[#ff6b00]/20"
-              >
-                <div className="relative w-full aspect-[16/10] rounded-2xl overflow-hidden mb-4 border border-zinc-200/50 bg-zinc-200/50">
-                  <Image src="https://image.thum.io/get/width/800/crop/600/wait/6/noanimate/https://www.antikguldsmeden.dk" alt="Antikguldsmeden Preview" fill className="object-cover group-hover/item:scale-105 transition-transform duration-500" unoptimized />
-                </div>
-                <div className="font-bold text-lg text-zinc-900 group-hover/item:text-[#ff6b00] transition-colors flex items-center justify-between">
-                  Antikguldsmeden
-                  <div className="w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center group-hover/item:scale-110 transition-transform">
-                    <ArrowUpRight className="w-4 h-4 text-zinc-400 group-hover/item:text-[#ff6b00] group-hover/item:translate-x-0.5 group-hover/item:-translate-y-0.5 transition-all" />
-                  </div>
-                </div>
-                <div className="text-sm font-medium text-zinc-500 mt-1">{t.ecommerce}</div>
-              </motion.a>
-              <motion.a 
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                href="https://doctorislanddetail.lovable.app" 
-                target="_blank" 
-                rel="noreferrer" 
-                className="group/item block p-5 rounded-3xl bg-zinc-50 hover:bg-[#ff6b00]/5 transition-colors border border-zinc-100 hover:border-[#ff6b00]/20"
-              >
-                <div className="relative w-full aspect-[16/10] rounded-2xl overflow-hidden mb-4 border border-zinc-200/50 bg-zinc-200/50">
-                  <Image src="https://image.thum.io/get/width/800/crop/600/wait/6/noanimate/https://doctorislanddetail.lovable.app" alt="Doctor Island Detail Preview" fill className="object-cover group-hover/item:scale-105 transition-transform duration-500" unoptimized />
-                </div>
-                <div className="font-bold text-lg text-zinc-900 group-hover/item:text-[#ff6b00] transition-colors flex items-center justify-between">
-                  Doctor Island Detail
-                  <div className="w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center group-hover/item:scale-110 transition-transform">
-                    <ArrowUpRight className="w-4 h-4 text-zinc-400 group-hover/item:text-[#ff6b00] group-hover/item:translate-x-0.5 group-hover/item:-translate-y-0.5 transition-all" />
-                  </div>
-                </div>
-                <div className="text-sm font-medium text-zinc-500 mt-1">{t.serviceBiz}</div>
-              </motion.a>
-            </div>
-          </motion.div>
-
-          {/* MVPs Grid */}
-          <motion.div 
-            variants={fadeUp}
-            className="md:col-span-12 bg-white rounded-[2.5rem] p-8 sm:p-10 shadow-sm border border-zinc-100 group hover:shadow-md transition-shadow duration-300"
-          >
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-10">
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-zinc-50 border border-zinc-100 text-xs font-semibold text-zinc-600 uppercase tracking-wider">
-                <Globe className="w-3.5 h-3.5" />
-                {t.websiteMvps}
-              </div>
-              <motion.a 
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                href="https://tally.so/r/lbNWe6" 
-                target="_blank"
-                rel="noreferrer"
-                className="text-sm font-bold text-[#ff6b00] hover:text-[#e66000] transition-colors flex items-center gap-1 bg-[#ff6b00]/10 px-5 py-2.5 rounded-full hover:bg-[#ff6b00]/20"
-              >
-                {t.getMvp} <ArrowUpRight className="w-4 h-4" />
-              </motion.a>
-            </div>
+        {/* About & Process Section */}
+        <section className="max-w-4xl mx-auto px-4 sm:px-6 mt-16 mb-32 relative z-20">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
             
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-              {[
-                { name: 'Mindag', url: 'https://mindag.lovable.app/#' },
-                { name: 'Sarah Barløse', url: 'https://sarahbarlose-dk.lovable.app' },
-                { name: 'Danfun', url: 'https://danfun-dk.lovable.app' },
-                { name: 'Svendborg Pejse', url: 'https://svendborg-pejse.lovable.app' },
-                { name: 'Moselund Økologi', url: 'https://moselundokologi.vercel.app' },
-                { name: 'Havneby Kro', url: 'https://havnebykrodk.lovable.app' },
-              ].map((mvp, i) => (
-                <motion.a 
-                  key={i} 
-                  whileHover={{ y: -5, scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  href={mvp.url} 
-                  target="_blank" 
-                  rel="noreferrer" 
-                  className="group/card block p-5 rounded-3xl bg-zinc-50 hover:bg-white transition-all duration-300 border border-zinc-100 hover:border-zinc-200 hover:shadow-xl hover:shadow-zinc-200/40"
-                >
-                  <div className="relative w-full aspect-[16/10] rounded-2xl overflow-hidden mb-4 border border-zinc-200/50 bg-zinc-200/50">
-                    <Image src={`https://image.thum.io/get/width/800/crop/600/wait/6/noanimate/${mvp.url}`} alt={`${mvp.name} Preview`} fill className="object-cover group-hover/card:scale-105 transition-transform duration-500" unoptimized />
-                  </div>
-                  <div className="font-bold text-zinc-900 flex items-start justify-between gap-4 mb-2">
-                    <span className="line-clamp-2">{mvp.name}</span>
-                    <div className="w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center shrink-0 group-hover/card:bg-zinc-900 transition-colors">
-                      <ArrowUpRight className="w-4 h-4 text-zinc-400 group-hover/card:text-white group-hover/card:translate-x-0.5 group-hover/card:-translate-y-0.5 transition-all" />
-                    </div>
-                  </div>
-                  <div className="text-sm font-medium text-zinc-500 truncate">{mvp.url.replace('https://', '').replace('/#', '')}</div>
-                </motion.a>
-              ))}
-            </div>
-          </motion.div>
+            {/* About */}
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="bg-white rounded-3xl p-8 border border-zinc-200/80 shadow-sm"
+            >
+              <h2 className="text-2xl font-bold mb-4">{t.aboutTitle}</h2>
+              <p className="text-zinc-600 leading-relaxed font-medium mb-8">
+                {t.aboutBody}
+              </p>
+              <div className="flex flex-col gap-4">
+                <div className="flex flex-wrap items-center gap-3">
+                  <a href="https://www.proff.dk/firma/riverai-aps/hesselager/internetdesign-og-programmering/0RBXP7I0C2C" target="_blank" rel="noreferrer" className="text-sm font-bold text-zinc-700 hover:text-zinc-900 transition-colors flex items-center gap-1.5 bg-zinc-100 px-4 py-2 rounded-full border border-zinc-200/80">
+                    CVR: 45906523 <ArrowUpRight className="w-3.5 h-3.5" />
+                  </a>
+                  <a href="https://riverai.dk" target="_blank" rel="noreferrer" className="text-sm font-bold text-zinc-700 hover:text-zinc-900 transition-colors flex items-center gap-1.5 bg-zinc-100 px-4 py-2 rounded-full border border-zinc-200/80">
+                    riverai.dk <ArrowUpRight className="w-3.5 h-3.5" />
+                  </a>
+                </div>
+                <div className="pt-4 border-t border-zinc-100 flex flex-col gap-2 text-sm font-medium">
+                  <a href="mailto:support@riverai.dk" className="text-zinc-500 hover:text-zinc-900 transition-colors">
+                    support@riverai.dk
+                  </a>
+                  <a href="https://cal.com/river-ai-aps/discovery-call" target="_blank" rel="noreferrer" className="text-[#ff6b00] hover:text-[#e66000] font-semibold transition-colors flex items-center gap-1">
+                    {t.bookCall} <ArrowUpRight className="w-3.5 h-3.5" />
+                  </a>
+                </div>
+              </div>
+            </motion.div>
 
-        </motion.div>
-      </main>
+            {/* How it works */}
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.1 }}
+              className="bg-white rounded-3xl p-8 border border-zinc-200/80 shadow-sm flex flex-col justify-center"
+            >
+              <h2 className="text-2xl font-bold mb-8">{t.howItWorksTitle}</h2>
+              <div className="space-y-5 text-zinc-600 font-medium">
+                <p className="border-b border-zinc-100 pb-4">{t.timeline}</p>
+                <p className="border-b border-zinc-100 pb-4">{t.price}</p>
+                <p className="border-b border-zinc-100 pb-4">{t.includes}</p>
+                <p className="text-zinc-800 font-semibold">{t.youOwn}</p>
+              </div>
+            </motion.div>
+
+          </div>
+        </section>
+      </div>
+
+      {/* Real Footer */}
+      <footer className="border-t border-zinc-200 bg-white py-12 pb-16 relative z-20">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 grid grid-cols-1 sm:grid-cols-3 gap-8 text-sm text-zinc-500 font-medium">
+          <div>
+            <p className="font-bold text-zinc-900 mb-3 text-base">RiverAI ApS</p>
+            <p className="mb-1">Fyn, Denmark</p>
+            <p>CVR 45906523</p>
+          </div>
+          <div className="flex flex-col gap-2">
+            <p className="font-bold text-zinc-900 mb-1 text-base">Contact</p>
+            <a href="mailto:support@riverai.dk" className="hover:text-zinc-900 transition-colors w-fit">support@riverai.dk</a>
+            <a href="https://cal.com/river-ai-aps/discovery-call" target="_blank" rel="noreferrer" className="hover:text-zinc-900 transition-colors w-fit">Book a call</a>
+          </div>
+          <div className="flex flex-col gap-2 sm:items-end">
+            <p className="font-bold text-zinc-900 mb-1 text-base sm:opacity-0 hidden sm:block">Legal</p>
+            <a href="https://linkedin.com" target="_blank" rel="noreferrer" className="hover:text-zinc-900 transition-colors w-fit">LinkedIn</a>
+            <p className="mt-auto pt-4 sm:pt-0">© 2026 RiverAI ApS</p>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }

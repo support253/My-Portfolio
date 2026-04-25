@@ -25,7 +25,13 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: 'https',
-        hostname: 'image.thum.io',
+        hostname: 's0.wp.com',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'api.microlink.io',
         port: '',
         pathname: '/**',
       },
