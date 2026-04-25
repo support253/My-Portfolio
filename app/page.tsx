@@ -1,13 +1,8 @@
-// NOTE: All 3 client sites (dahlogsvane.dk, antikguldsmeden.dk, doctorislanddetail.lovable.app)
-// allow iframe embedding — verified by checking response headers and HTML for X-Frame-Options,
-// CSP frame-ancestors, and frame-busting JS. The screenshot fallback only triggers if onLoad
-// hasn't fired within 10 seconds (catches future regressions or genuinely broken sites).
-
 "use client";
 
 import Image from 'next/image';
 import { useState, useEffect } from 'react';
-import { ArrowUpRight, Languages } from 'lucide-react';
+import { ArrowUpRight } from 'lucide-react';
 import { motion, useScroll, useTransform } from 'motion/react';
 import { useIsMobile } from '@/hooks/use-mobile';
 
@@ -24,9 +19,7 @@ const translations = {
     price: "Price: 8.000–15.000 DKK ekskl. moms",
     includes: "Includes: design, build, deployment, 1 revision round",
     youOwn: "You own: domain, code, hosting account",
-    openLiveSite: "Open live site",
-    previewUnavailable: "Live preview unavailable",
-    previewDesc: "The security settings for this website prevent it from being embedded here. Click below to view the live site."
+    openLiveSite: "Open live site"
   },
   da: {
     h1: "Jeg bygger hjemmesider til danske virksomheder.",
@@ -40,9 +33,7 @@ const translations = {
     price: "Pris: 8.000–15.000 DKK ekskl. moms",
     includes: "Inkluderer: design, udvikling, lancering, 1 revisionsrunde",
     youOwn: "Du ejer: domæne, kode, hosting-konto",
-    openLiveSite: "Åbn live side",
-    previewUnavailable: "Live forhåndsvisning utilgængelig",
-    previewDesc: "Sikkerhedsindstillinger for denne hjemmeside forhindrer den i at blive indlejret her. Klik nedenfor for at besøge den live side."
+    openLiveSite: "Åbn live side"
   }
 };
 
@@ -68,19 +59,6 @@ const projects = [
 ];
 
 const ProjectCard = ({ project, t, isMobile }: { project: any, t: any, isMobile: boolean }) => {
-  const [iframeLoaded, setIframeLoaded] = useState(false);
-  const [iframeFailed, setIframeFailed] = useState(false);
-
-  useEffect(() => {
-    if (isMobile) return;
-    const timer = setTimeout(() => {
-      if (!iframeLoaded) setIframeFailed(true);
-    }, 10000);
-    return () => clearTimeout(timer);
-  }, [iframeLoaded, isMobile]);
-
-  const showScreenshot = isMobile || iframeFailed;
-
   return (
     <motion.div whileHover={{ y: -4 }} className="mb-20">
       <div className="mb-5 flex flex-col sm:flex-row sm:items-end justify-between gap-3">
@@ -94,55 +72,55 @@ const ProjectCard = ({ project, t, isMobile }: { project: any, t: any, isMobile:
       </div>
       
       <div className="group rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-zinc-200/80 bg-white">
-        <a href={project.url} target="_blank" rel="noopener noreferrer" className="block cursor-pointer">
-          {/* Faux Browser Chrome */}
-          <div className="bg-zinc-100 border-b border-zinc-200 px-4 py-3 flex items-center">
-            <div className="flex gap-1.5 w-16">
-              <div className="w-3 h-3 rounded-full bg-[#ff5f56]" />
-              <div className="w-3 h-3 rounded-full bg-[#ffbd2e]" />
-              <div className="w-3 h-3 rounded-full bg-[#27c93f]" />
-            </div>
-            <div className="flex-1 text-center">
-              <div className="mx-auto max-w-fit inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white shadow-sm border border-zinc-200/80 text-xs font-semibold text-zinc-500 group-hover:bg-zinc-50 group-hover:text-zinc-800 transition-colors">
-                {project.url.replace('https://', '').replace('/', '')}
-              </div>
-            </div>
-            <div className="w-16" />
+        {/* Faux Browser Chrome — URL bar + open-in-new-tab */}
+        <div className="bg-zinc-100 border-b border-zinc-200 px-4 py-3 flex items-center gap-3">
+          <div className="flex gap-1.5 shrink-0">
+            <div className="w-3 h-3 rounded-full bg-[#ff5f56]" />
+            <div className="w-3 h-3 rounded-full bg-[#ffbd2e]" />
+            <div className="w-3 h-3 rounded-full bg-[#27c93f]" />
           </div>
-        </a>
+          <a 
+            href={project.url} 
+            target="_blank" 
+            rel="noopener noreferrer" 
+            className="flex-1 mx-2 inline-flex items-center justify-center gap-2 px-4 py-1.5 rounded-full bg-white shadow-sm border border-zinc-200/80 text-xs font-semibold text-zinc-500 hover:bg-zinc-50 hover:text-zinc-800 transition-colors truncate"
+          >
+            {project.url.replace('https://', '').replace(/\/$/, '')}
+          </a>
+          <a 
+            href={project.url} 
+            target="_blank" 
+            rel="noopener noreferrer" 
+            className="shrink-0 inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-zinc-900 text-white text-xs font-semibold hover:bg-zinc-700 transition-colors"
+            aria-label={`Open ${project.name} in new tab`}
+          >
+            <ArrowUpRight className="w-3.5 h-3.5" />
+          </a>
+        </div>
         
-        {/* Interactive Body */}
-        <div className="relative w-full h-[350px] sm:h-[600px] overflow-hidden bg-zinc-50 flex items-center justify-center border-t border-zinc-200/50">
-          {showScreenshot ? (
-            <>
-              <Image 
-                src={`https://api.microlink.io/?url=${encodeURIComponent(project.url)}&screenshot=true&embed=screenshot.url`} 
-                alt={project.name} 
-                fill 
-                className="object-cover object-top" 
-                unoptimized 
-              />
-              <div className="absolute inset-0 bg-black/10 flex flex-col items-center justify-center p-6 text-center">
-                <a href={project.url} target="_blank" rel="noopener noreferrer" className="px-6 py-3 bg-white/95 backdrop-blur-sm text-zinc-900 rounded-full font-bold shadow-xl border border-zinc-200/50 hover:scale-105 active:scale-95 transition-transform flex items-center gap-2">
-                  {t.openLiveSite} <ArrowUpRight className="w-4 h-4" />
-                </a>
-              </div>
-            </>
-          ) : (
+        {/* Body — iframe on desktop, click-through card on mobile */}
+        {isMobile ? (
+          <a 
+            href={project.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="relative w-full h-[250px] bg-gradient-to-br from-zinc-100 to-zinc-200 flex items-center justify-center border-t border-zinc-200/50 active:scale-[0.99] transition-transform"
+          >
+            <div className="px-6 py-3 bg-white text-zinc-900 rounded-full font-bold shadow-md border border-zinc-200/50 flex items-center gap-2">
+              {t.openLiveSite} <ArrowUpRight className="w-4 h-4" />
+            </div>
+          </a>
+        ) : (
+          <div className="relative w-full h-[600px] overflow-hidden bg-zinc-50 border-t border-zinc-200/50">
             <div className="w-[200%] h-[200%] scale-50 origin-top-left absolute top-0 left-0 bg-white">
               <iframe 
                 src={project.url} 
                 className="w-full h-full pointer-events-auto border-none"
-                onLoad={() => setIframeLoaded(true)}
+                title={project.name}
               />
-              {!iframeLoaded && (
-                <div className="absolute inset-0 flex items-center justify-center bg-zinc-50 pointer-events-none">
-                  <div className="w-8 h-8 rounded-full border-2 border-zinc-300 border-t-[#ff6b00] animate-spin" />
-                </div>
-              )}
             </div>
-          )}
-        </div>
+          </div>
+        )}
       </div>
     </motion.div>
   );
