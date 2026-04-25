@@ -15,10 +15,8 @@ const translations = {
     aboutTitle: "About",
     aboutBody: "Thomas Vincent-Piper, 17, based in Fyn. I build custom websites for Danish small businesses — no templates, no page builders, real code. One-on-one, fast turnaround, you own everything.",
     howItWorksTitle: "How working with me goes",
-    timeline: "Timeline: 2–3 weeks from kickoff to live",
-    price: "Price: 8.000–15.000 DKK ekskl. moms",
-    includes: "Includes: design, build, deployment, 1 revision round",
-    youOwn: "You own: domain, code, hosting account",
+    quoteSubhead: "Every site is different — pricing depends on pages, integrations, and timeline. Fill out a 2-minute brief and I'll send a tailored quote within 24 hours.",
+    quoteCta: "Get a custom quote",
     openLiveSite: "Open live site"
   },
   da: {
@@ -29,10 +27,8 @@ const translations = {
     aboutTitle: "Om mig",
     aboutBody: "Thomas Vincent-Piper, 17 år, baseret på Fyn. Jeg bygger skræddersyede hjemmesider til danske virksomheder — ingen skabeloner, ingen page builders, kun rigtig kode. En-til-en kontakt, hurtig levering, og du ejer alt.",
     howItWorksTitle: "Sådan foregår samarbejdet",
-    timeline: "Tidslinje: 2–3 uger fra start til lancering",
-    price: "Pris: 8.000–15.000 DKK ekskl. moms",
-    includes: "Inkluderer: design, udvikling, lancering, 1 revisionsrunde",
-    youOwn: "Du ejer: domæne, kode, hosting-konto",
+    quoteSubhead: "Hver side er forskellig — prisen afhænger af sider, integrationer og deadline. Udfyld en 2-minutters brief, så sender jeg et skræddersyet tilbud inden for 24 timer.",
+    quoteCta: "Få et skræddersyet tilbud",
     openLiveSite: "Åbn live side"
   }
 };
@@ -299,14 +295,23 @@ export default function Home() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: 0.1 }}
-              className="bg-white rounded-3xl p-8 border border-zinc-200/80 shadow-sm flex flex-col justify-center"
+              className="bg-white rounded-3xl p-8 border border-zinc-200/80 shadow-sm flex flex-col justify-between"
             >
-              <h2 className="text-2xl font-bold mb-8">{t.howItWorksTitle}</h2>
-              <div className="space-y-5 text-zinc-600 font-medium">
-                <p className="border-b border-zinc-100 pb-4">{t.timeline}</p>
-                <p className="border-b border-zinc-100 pb-4">{t.price}</p>
-                <p className="border-b border-zinc-100 pb-4">{t.includes}</p>
-                <p className="text-zinc-800 font-semibold">{t.youOwn}</p>
+              <div>
+                <h2 className="text-2xl font-bold mb-4">{t.howItWorksTitle}</h2>
+                <p className="text-zinc-600 leading-relaxed font-medium mb-8">
+                  {t.quoteSubhead}
+                </p>
+              </div>
+              <div className="flex justify-center">
+                <a 
+                  href="https://tally.so/r/lbNWe6" 
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-2 px-8 py-4 rounded-full bg-zinc-900 text-white font-medium hover:bg-zinc-800 hover:scale-105 active:scale-95 transition-all shadow-lg shadow-zinc-900/10"
+                >
+                  {t.quoteCta} <ArrowUpRight className="w-5 h-5 opacity-70" />
+                </a>
               </div>
             </motion.div>
 
