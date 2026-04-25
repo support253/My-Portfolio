@@ -1,7 +1,7 @@
-// NOTE: Iframe fallback mechanism relies on a 3-second timeout due to browser CORS policies. 
-// If a client site (e.g. Doctor Island Detail on Lovable, which typically sends X-Frame-Options: DENY) 
-// blocks framing, the onload event gracefully fails, and the timeout swaps the view to a high-res screenshot automatically.
-// The other sites (Dahl & Svane, Antikguldsmeden) will likely render perfectly within the iframe.
+// NOTE: All 3 client sites (dahlogsvane.dk, antikguldsmeden.dk, doctorislanddetail.lovable.app)
+// allow iframe embedding — verified by checking response headers and HTML for X-Frame-Options,
+// CSP frame-ancestors, and frame-busting JS. The screenshot fallback only triggers if onLoad
+// hasn't fired within 10 seconds (catches future regressions or genuinely broken sites).
 
 "use client";
 
@@ -51,8 +51,7 @@ const projects = [
     name: "Dahl & Svane",
     description: "Civil engineering / consulting",
     tag: "Consulting",
-    url: "https://dahlogsvane.dk",
-    forceScreenshot: true
+    url: "https://dahlogsvane.dk"
   },
   {
     name: "Antikguldsmeden",
@@ -64,8 +63,7 @@ const projects = [
     name: "Doctor Island Detail",
     description: "Auto detailing",
     tag: "Service Business",
-    url: "https://doctorislanddetail.lovable.app/",
-    forceScreenshot: true
+    url: "https://doctorislanddetail.lovable.app/"
   }
 ];
 
@@ -74,14 +72,14 @@ const ProjectCard = ({ project, t, isMobile }: { project: any, t: any, isMobile:
   const [iframeFailed, setIframeFailed] = useState(false);
 
   useEffect(() => {
-    if (isMobile || project.forceScreenshot) return;
+    if (isMobile) return;
     const timer = setTimeout(() => {
       if (!iframeLoaded) setIframeFailed(true);
-    }, 3000);
+    }, 10000);
     return () => clearTimeout(timer);
-  }, [iframeLoaded, isMobile, project.forceScreenshot]);
+  }, [iframeLoaded, isMobile]);
 
-  const showScreenshot = isMobile || iframeFailed || project.forceScreenshot;
+  const showScreenshot = isMobile || iframeFailed;
 
   return (
     <motion.div whileHover={{ y: -4 }} className="mb-20">
@@ -135,7 +133,6 @@ const ProjectCard = ({ project, t, isMobile }: { project: any, t: any, isMobile:
               <iframe 
                 src={project.url} 
                 className="w-full h-full pointer-events-auto border-none"
-                loading="lazy"
                 onLoad={() => setIframeLoaded(true)}
               />
               {!iframeLoaded && (
